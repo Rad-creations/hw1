@@ -1,0 +1,21 @@
+{
+  "name": "Ruby Development Environment",
+  "image": "ruby:4.0",
+  "postCreateCommand": "apt-get update && apt-get install -y sqlite3 libsqlite3-dev",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vortizhe.simple-ruby-erb",
+        "MS-vsliveshare.vsliveshare"
+      ],
+      "settings": {
+        "editor.stickyScroll.enabled": true,
+        "[ruby]": {
+          "editor.tabSize": 2,
+          "editor.insertSpaces": true,
+          "editor.semanticHighlighting.enabled": true
+        }
+      }
+    }
+  }
+}
