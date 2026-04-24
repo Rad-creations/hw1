@@ -94,14 +94,97 @@
 .headers off
 
 -- Drop existing tables, so you'll start fresh each time this script is run.
--- TODO!
+DROP TABLE IF EXISTS castings;
+DROP TABLE IF EXISTS movies;
+DROP TABLE IF EXISTS actors;
+DROP TABLE IF EXISTS studios;
+DROP TABLE IF EXISTS agents;
 
 -- Create new tables, according to your domain model
--- TODO!
+CREATE TABLE studios (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE agents (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE movies (
+    id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    year_released INTEGER NOT NULL,
+    mpaa_rating TEXT NOT NULL,
+    studio_id INTEGER NOT NULL,
+    FOREIGN KEY (studio_id) REFERENCES studios(id)
+);
+
+CREATE TABLE actors (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    agent_id INTEGER,
+    FOREIGN KEY (agent_id) REFERENCES agents(id)
+);
+
+CREATE TABLE castings (
+    id INTEGER PRIMARY KEY,
+    movie_id INTEGER NOT NULL,
+    actor_id INTEGER NOT NULL,
+    character_name TEXT NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(id),
+    FOREIGN KEY (actor_id) REFERENCES actors(id)
+);
 
 -- Insert data into your database that reflects the sample data shown above
 -- Use hard-coded foreign key IDs when necessary
--- TODO!
+-- Studios
+INSERT INTO studios (id, name) VALUES (1, 'Warner Bros.');
+
+-- Agents
+INSERT INTO agents (id, name) VALUES (1, 'Super Agent Talent Co.');
+
+-- Movies
+INSERT INTO movies (id, title, year_released, mpaa_rating, studio_id) VALUES (1, 'Batman Begins', 2005, 'PG-13', 1);
+INSERT INTO movies (id, title, year_released, mpaa_rating, studio_id) VALUES (2, 'The Dark Knight', 2008, 'PG-13', 1);
+INSERT INTO movies (id, title, year_released, mpaa_rating, studio_id) VALUES (3, 'The Dark Knight Rises', 2012, 'PG-13', 1);
+
+-- Actors (agent_id left NULL for now — we'll UPDATE Christian Bale later)
+INSERT INTO actors (id, name) VALUES (1, 'Christian Bale');
+INSERT INTO actors (id, name) VALUES (2, 'Michael Caine');
+INSERT INTO actors (id, name) VALUES (3, 'Liam Neeson');
+INSERT INTO actors (id, name) VALUES (4, 'Katie Holmes');
+INSERT INTO actors (id, name) VALUES (5, 'Gary Oldman');
+INSERT INTO actors (id, name) VALUES (6, 'Heath Ledger');
+INSERT INTO actors (id, name) VALUES (7, 'Aaron Eckhart');
+INSERT INTO actors (id, name) VALUES (8, 'Maggie Gyllenhaal');
+INSERT INTO actors (id, name) VALUES (9, 'Tom Hardy');
+INSERT INTO actors (id, name) VALUES (10, 'Joseph Gordon-Levitt');
+INSERT INTO actors (id, name) VALUES (11, 'Anne Hathaway');
+
+-- Castings (links actors to movies with character names)
+-- Batman Begins (movie_id = 1)
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (1, 1, 'Bruce Wayne');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (1, 2, 'Alfred');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (1, 3, 'Ra''s Al Ghul');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (1, 4, 'Rachel Dawes');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (1, 5, 'Commissioner Gordon');
+
+-- The Dark Knight (movie_id = 2)
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (2, 1, 'Bruce Wayne');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (2, 6, 'Joker');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (2, 7, 'Harvey Dent');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (2, 2, 'Alfred');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (2, 8, 'Rachel Dawes');
+
+-- The Dark Knight Rises (movie_id = 3)
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (3, 1, 'Bruce Wayne');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (3, 5, 'Commissioner Gordon');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (3, 9, 'Bane');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (3, 10, 'John Blake');
+INSERT INTO castings (movie_id, actor_id, character_name) VALUES (3, 11, 'Selina Kyle');
+-- Assign the agent to represent Christian Bale
+UPDATE actors SET agent_id = 1 WHERE id = 1;
 
 -- Prints a header for the movies output
 .print "Movies"
@@ -110,7 +193,10 @@
 
 -- ***TODO!***
 -- The SQL statement for the movies output goes here.
-
+SELECT movies.title, movies.year_released, movies.mpaa_rating, studios.name
+FROM movies
+JOIN studios ON movies.studio_id = studios.id
+ORDER BY movies.year_released;
 -- Example output:
 -- Movies
 -- ======
@@ -126,6 +212,11 @@
 
 -- ***TODO!***
 -- The SQL statement for the cast output goes here.
+SELECT movies.title, actors.name, castings.character_name
+FROM castings
+JOIN movies ON castings.movie_id = movies.id
+JOIN actors ON castings.actor_id = actors.id
+ORDER BY movies.year_released, castings.id;
 
 -- Example output:
 -- Top Cast
@@ -154,6 +245,9 @@
 
 -- ***TODO!***
 -- The SQL statement for the represented actor(s) output goes here.
+SELECT actors.name
+FROM actors
+JOIN agents ON actors.agent_id = agents.id;
 
 -- Example output:
 -- Represented by agent
